@@ -1,205 +1,194 @@
 <!DOCTYPE html><html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SpotFun</title><style>
-*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SpotFun</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box;font-family:'Inter',sans-serif}
 body{
   margin:0;
   min-height:100vh;
+  background:#000;
+  color:#fff;
   display:flex;
   justify-content:center;
   align-items:center;
-  background:#0f0f0f;
-  color:#fff;
   overflow:hidden;
 }
 
-/* BLUR BACKGROUND */
+/* SPOTIFY BLUR BACKGROUND */
 .bg{
   position:fixed;
   inset:0;
   background-size:cover;
   background-position:center;
-  filter:blur(40px) brightness(0.6);
-  transform:scale(1.2);
+  filter:blur(70px) brightness(.4) saturate(1.3);
+  transform:scale(1.35);
   z-index:-1;
 }
 
 .player{
-  width:360px;
-  background:rgba(18,18,18,.9);
-  border-radius:22px;
-  padding:16px;
-  backdrop-filter:blur(10px);
+  width:390px;
+  background:linear-gradient(180deg,rgba(24,24,24,.95),rgba(12,12,12,.98));
+  border-radius:30px;
+  padding:18px;
+  box-shadow:0 25px 70px rgba(0,0,0,.75);
 }
 
 .cover-wrap{
   width:100%;
   aspect-ratio:1/1;
-  border-radius:18px;
+  border-radius:22px;
   overflow:hidden;
-  background:#222;
+  background:#111;
 }
 .cover-wrap img{
   width:100%;
   height:100%;
-  object-fit:contain; /* ANTI CROP */
+  object-fit:contain;
 }
 
-.info{margin-top:12px}
-.info h2{margin:0;font-size:20px}
-.info p{margin:4px 0 0;color:#aaa}
+.info{margin-top:14px}
+.info h2{margin:0;font-size:22px;font-weight:700}
+.info p{margin:4px 0 0;font-size:14px;color:#b3b3b3}
 
-.progress-wrap{margin:14px 0}
-input[type=range]{width:100%}
-.time{display:flex;justify-content:space-between;font-size:12px;color:#aaa}
+/* PROGRESS */
+.progress-wrap{margin-top:18px}
+input[type=range]{
+  -webkit-appearance:none;
+  width:100%;
+  height:4px;
+  border-radius:2px;
+  background:#404040;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px;height:14px;
+  border-radius:50%;
+  background:#1db954;
+}
+.time{display:flex;justify-content:space-between;font-size:11px;color:#a7a7a7;margin-top:4px}
 
+/* CONTROLS */
 .controls{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  margin:12px 0;
+  justify-content:space-between;
+  margin:18px 0 6px;
 }
 .controls button{
   background:none;
   border:none;
-  color:#fff;
+  color:#b3b3b3;
   font-size:20px;
 }
+.controls button.active{color:#1db954}
 .controls .play{
-  background:#1db954;
-  width:60px;
-  height:60px;
+  background:#fff;
+  color:#000;
+  width:66px;height:66px;
   border-radius:50%;
-  font-size:24px;
+  font-size:28px;
 }
-.controls .active{color:#1db954}
 
-.playlist{margin-top:10px;max-height:160px;overflow:auto}
+/* VOLUME */
+.volume{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:6px 0 10px;
+}
+.volume input{flex:1}
+
+/* PLAYLIST */
+.playlist{margin-top:6px;max-height:170px;overflow:auto}
 .song{
   display:flex;
   align-items:center;
+  gap:10px;
   padding:8px;
   border-radius:10px;
   cursor:pointer;
 }
-.song.active{background:rgba(29,185,84,.25)}
-.song img{
-  width:42px;height:42px;
-  object-fit:cover;
-  border-radius:6px;
-  margin-right:10px
-}
+.song:hover{background:#1a1a1a}
+.song.active{background:#1db9541f}
+.song img{width:44px;height:44px;border-radius:6px;object-fit:cover}
 .song .t{font-size:14px}
-.song .a{font-size:12px;color:#aaa}
+.song .a{font-size:12px;color:#b3b3b3}
 </style></head>
 <body><div class="bg" id="bg"></div><div class="player">
-  <div class="cover-wrap">
-    <img id="cover" src="aboutyou.jpg">
-  </div>  <div class="info">
+  <div class="cover-wrap"><img id="cover" src="aboutyou.jpg"></div>  <div class="info">
     <h2 id="title">About You</h2>
     <p id="artist">The 1975</p>
   </div>  <div class="progress-wrap">
     <input type="range" id="progress" value="0">
-    <div class="time">
-      <span id="current">0:00</span>
-      <span id="duration">0:00</span>
-    </div>
+    <div class="time"><span id="current">0:00</span><span id="duration">0:00</span></div>
   </div>  <div class="controls">
-    <button id="shuffleBtn">🔀</button>
-    <button onclick="prev()">⏮</button>
-    <button class="play" id="playBtn">▶</button>
-    <button onclick="next()">⏭</button>
-    <button id="repeatBtn">🔁</button>
+    <button id="shuffle">🔀</button>
+    <button id="prev">⏮</button>
+    <button class="play" id="play">▶</button>
+    <button id="next">⏭</button>
+    <button id="repeat">🔁</button>
+  </div>  <div class="volume">
+    🔊 <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
   </div>  <div class="playlist" id="playlist"></div>
 </div><audio id="audio"></audio>
 
 <script>
 const songs=[
-  {title:'About You',artist:'The 1975',src:'aboutyou.mp3',cover:'aboutyou.jpg'},
-  {title:'Happiness',artist:'Rex Orange County',src:'happiness.mp3',cover:'cover2.jpg'}
+ {title:'About You',artist:'The 1975',src:'aboutyou.mp3',cover:'aboutyou.jpg'},
+ {title:'Happiness',artist:'Rex Orange Country',src:'happiness.mp3',cover:'cover2.jpg'}
 ];
 
-let index=0;
-let shuffle=false;
-let repeat=false;
-
+let i=0,shuffle=false,repeat=false;
 const audio=document.getElementById('audio');
 const cover=document.getElementById('cover');
 const bg=document.getElementById('bg');
 const title=document.getElementById('title');
 const artist=document.getElementById('artist');
 const progress=document.getElementById('progress');
-const playBtn=document.getElementById('playBtn');
-const shuffleBtn=document.getElementById('shuffleBtn');
-const repeatBtn=document.getElementById('repeatBtn');
+const playBtn=document.getElementById('play');
 const playlist=document.getElementById('playlist');
+const volume=document.getElementById('volume');
 
-function loadSong(i){
-  index=i;
-  const s=songs[i];
-  audio.src=s.src;
-  cover.src=s.cover;
-  bg.style.backgroundImage=`url('${s.cover}')`;
-  title.textContent=s.title;
-  artist.textContent=s.artist;
-  document.querySelectorAll('.song').forEach((el,idx)=>{
-    el.classList.toggle('active',idx===i);
-  });
+function loadSong(x){
+ i=x;const s=songs[i];
+ audio.src=s.src;
+ cover.src=s.cover;
+ bg.style.backgroundImage=`url('${s.cover}')`;
+ title.textContent=s.title;
+ artist.textContent=s.artist;
+ document.querySelectorAll('.song').forEach((e,n)=>e.classList.toggle('active',n===i));
 }
 
-function togglePlay(){
-  if(audio.paused){audio.play();playBtn.textContent='⏸';}
-  else{audio.pause();playBtn.textContent='▶';}
-}
+function togglePlay(){audio.paused?(audio.play(),playBtn.textContent='⏸'):(audio.pause(),playBtn.textContent='▶')}
+function nextSong(){i=shuffle?Math.floor(Math.random()*songs.length):(i+1)%songs.length;loadSong(i);audio.play();playBtn.textContent='⏸'}
+function prevSong(){i=(i-1+songs.length)%songs.length;loadSong(i);audio.play();playBtn.textContent='⏸'}
 
-function next(){
-  if(shuffle){index=Math.floor(Math.random()*songs.length);}
-  else{index=(index+1)%songs.length;}
-  loadSong(index);audio.play();playBtn.textContent='⏸';
-}
-
-function prev(){
-  index=(index-1+songs.length)%songs.length;
-  loadSong(index);audio.play();playBtn.textContent='⏸';
-}
-
-shuffleBtn.onclick=()=>{
-  shuffle=!shuffle;
-  shuffleBtn.classList.toggle('active',shuffle);
-};
-
-repeatBtn.onclick=()=>{
-  repeat=!repeat;
-  repeatBtn.classList.toggle('active',repeat);
-};
-
+shuffle.onclick=()=>{shuffle=!shuffle;shuffle.classList.toggle('active',shuffle)};
+repeat.onclick=()=>{repeat=!repeat;repeat.classList.toggle('active',repeat)};
 playBtn.onclick=togglePlay;
+next.onclick=nextSong;
+prev.onclick=prevSong;
+
+volume.oninput=()=>audio.volume=volume.value;
 
 audio.addEventListener('timeupdate',()=>{
-  progress.value=(audio.currentTime/audio.duration)*100||0;
-  current.textContent=format(audio.currentTime);
-  duration.textContent=format(audio.duration);
+ progress.value=(audio.currentTime/audio.duration)*100||0;
+ current.textContent=format(audio.currentTime);
+ duration.textContent=format(audio.duration);
 });
+progress.oninput=()=>audio.currentTime=(progress.value/100)*audio.duration;
 
-progress.oninput=()=>{
-  audio.currentTime=(progress.value/100)*audio.duration;
-};
-
-audio.addEventListener('ended',()=>{
-  if(repeat){audio.currentTime=0;audio.play();}
-  else{next();}
-});
+audio.addEventListener('ended',()=>repeat?(audio.currentTime=0,audio.play()):nextSong());
 
 function format(t){if(!t)return'0:00';const m=Math.floor(t/60);const s=Math.floor(t%60).toString().padStart(2,'0');return`${m}:${s}`}
 
-songs.forEach((s,i)=>{
-  const div=document.createElement('div');
-  div.className='song';
-  div.innerHTML=`<img src="${s.cover}"><div><div class="t">${s.title}</div><div class="a">${s.artist}</div></div>`;
-  div.onclick=()=>{loadSong(i);audio.play();playBtn.textContent='⏸';};
-  playlist.appendChild(div);
+songs.forEach((s,n)=>{
+ const d=document.createElement('div');d.className='song';
+ d.innerHTML=`<img src="${s.cover}"><div><div class="t">${s.title}</div><div class="a">${s.artist}</div></div>`;
+ d.onclick=()=>{loadSong(n);audio.play();playBtn.textContent='⏸'};
+ playlist.appendChild(d);
 });
 
 loadSong(0);
