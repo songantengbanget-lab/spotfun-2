@@ -2,78 +2,29 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Spotify Clone Final+</title>
+<title>Spotify Clone Final PlayFix</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --green:#1db954;
-  --accent:#1db954;
-  --card:#181818;
-}
+:root{--green:#1db954;--accent:#1db954;--card:#1f1f1f;}
 *{box-sizing:border-box}
-body{
-  margin:0;background:#000;color:#fff;
-  font-family:'Inter',sans-serif;
-  display:flex;justify-content:center;align-items:center;
-  min-height:100vh;overflow:hidden;
-}
-.bg{
-  position:fixed;inset:0;
-  background-size:cover;background-position:center;
-  filter:blur(100px) brightness(.55);
-  transform:scale(1.3);
-  z-index:-1;
-}
-.player{
-  width:390px;background:linear-gradient(180deg,#222,var(--card));
-  border-radius:28px;padding:20px;
-  box-shadow:0 25px 70px rgba(0,0,0,.7);
-}
-.cover{
-  width:100%;aspect-ratio:1/1;border-radius:22px;
-  object-fit:contain;background:#000;
-}
-.info{margin-top:14px}
-.title{font-size:20px;font-weight:700}
-.artist{font-size:14px;color:#aaa}
+body{margin:0;background:#000;color:#fff;font-family:'Inter',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;}
+.bg{position:fixed;inset:0;background-size:cover;background-position:center;filter:blur(90px) brightness(.85);transform:scale(1.2);z-index:-1;}
+.player{width:390px;background:linear-gradient(180deg,#2a2a2a,#121212);border-radius:28px;padding:20px;box-shadow:0 25px 70px rgba(0,0,0,.7);}
+.cover{width:100%;aspect-ratio:1/1;border-radius:22px;object-fit:contain;background:#000;}
+.info{margin-top:14px}.title{font-size:20px;font-weight:700}.artist{font-size:14px;color:#aaa}
 .progress{margin:16px 0}
-.progress input{
-  width:100%;appearance:none;height:4px;
-  background:#444;border-radius:4px;
-}
-.progress input::-webkit-slider-thumb{
-  appearance:none;width:12px;height:12px;
-  background:#fff;border-radius:50%;
-}
-.controls{
-  display:flex;justify-content:space-between;align-items:center;
-}
-.controls button{
-  background:none;border:none;color:#fff;
-  font-size:18px;cursor:pointer;
-}
-.play{
-  width:66px;height:66px;border-radius:50%;
-  background:#fff;color:#000;
-  display:flex;align-items:center;justify-content:center;
-  font-size:28px;
-}
+.progress input{width:100%;appearance:none;height:4px;background:#444;border-radius:4px;}
+.progress input::-webkit-slider-thumb{appearance:none;width:12px;height:12px;background:#fff;border-radius:50%;}
+.controls{display:flex;justify-content:space-between;align-items:center;}
+.controls button{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;}
+.play{width:66px;height:66px;border-radius:50%;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-size:28px;}
 .active{color:var(--accent)}
 .volume{margin:14px 0}
 .volume input{width:100%}
 .playlist{margin-top:10px;max-height:160px;overflow:auto}
-.track{
-  display:flex;gap:10px;align-items:center;
-  padding:8px;border-radius:10px;cursor:pointer;
-}
-.track.active{background:#282828}
-.track img{width:44px;height:44px;border-radius:6px;object-fit:cover}
-.lyrics{
-  margin-top:12px;padding:10px;
-  background:#101010;border-radius:12px;
-  font-size:13px;line-height:1.4;
-  max-height:120px;overflow:auto;
-}
+.track{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;cursor:pointer;}
+.track.active{background:#282828}.track img{width:44px;height:44px;border-radius:6px;object-fit:cover}
+.lyrics{margin-top:12px;padding:10px;background:#101010;border-radius:12px;font-size:13px;line-height:1.4;max-height:120px;overflow:auto;}
 </style>
 </head>
 <body>
@@ -118,11 +69,17 @@ const lyricsBox=document.getElementById('lyrics');function extractColor(img){ co
 
 function load(n){ i=n; const s=songs[i]; audio.src=s.src; cover.src=s.cover; bg.style.backgroundImage=url(${s.cover}); title.textContent=s.title; artist.textContent=s.artist; lyricsBox.textContent=s.lyrics||'🎶 Lyrics belum tersedia'; cover.onload=()=>extractColor(cover); document.querySelectorAll('.track').forEach((t,idx)=>t.classList.toggle('active',idx===i)); }
 
-play.onclick=()=>{ if(audio.paused){audio.play();play.textContent='⏸';} else{audio.pause();play.textContent='▶';} }; audio.ontimeupdate=()=>{seek.max=audio.duration||0;seek.value=audio.currentTime||0;}; seek.oninput=()=>audio.currentTime=seek.value; volume.value=0.8;audio.volume=0.8;volume.oninput=()=>audio.volume=volume.value;
+// Play / Pause fix play.onclick=()=>{ if(audio.src==='') load(0); if(audio.paused){audio.play();play.textContent='⏸';} else{audio.pause();play.textContent='▶';} };
 
-document.getElementById('next').onclick=()=>next(); document.getElementById('prev').onclick=()=>prev(); function next(){shuffle?load(Math.floor(Math.random()*songs.length)):load((i+1)%songs.length);audio.play();play.textContent='⏸';} function prev(){load((i-1+songs.length)%songs.length);audio.play();play.textContent='⏸';} shuffleBtn.onclick=()=>{shuffle=!shuffle;shuffleBtn.classList.toggle('active',shuffle)}; repeatBtn.onclick=()=>{repeat=!repeat;repeatBtn.classList.toggle('active',repeat)}; audio.onended=()=>{repeat?audio.play():next()};
+audio.ontimeupdate=()=>{seek.max=audio.duration||0;seek.value=audio.currentTime||0;}; seek.oninput=()=>audio.currentTime=seek.value; volume.value=0.8;audio.volume=0.8;volume.oninput=()=>audio.volume=volume.value;
 
-songs.forEach((s,idx)=>{ const d=document.createElement('div');d.className='track'; d.innerHTML=<img src="${s.cover}"><div><div>${s.title}</div><small>${s.artist}</small></div>; d.onclick=()=>{load(idx);audio.play();play.textContent='⏸'}; playlist.appendChild(d); }); load(0); </script>
+// Next / Prev document.getElementById('next').onclick=()=>next(); document.getElementById('prev').onclick=()=>prev(); function next(){shuffle?load(Math.floor(Math.random()*songs.length)):load((i+1)%songs.length);audio.play();play.textContent='⏸';} function prev(){load((i-1+songs.length)%songs.length);audio.play();play.textContent='⏸';}
+
+// Shuffle / Repeat shuffleBtn.onclick=()=>{shuffle=!shuffle;shuffleBtn.classList.toggle('active',shuffle)}; repeatBtn.onclick=()=>{repeat=!repeat;repeatBtn.classList.toggle('active',repeat)}; audio.onended=()=>{repeat?audio.play():next()};
+
+// Playlist click songs.forEach((s,idx)=>{ const d=document.createElement('div'); d.className='track'; d.innerHTML=<img src="${s.cover}"><div><div>${s.title}</div><small>${s.artist}</small></div>; d.onclick=()=>{load(idx);audio.play();play.textContent='⏸';}; playlist.appendChild(d); });
+
+load(0); </script>
 
 </body>
 </html>
