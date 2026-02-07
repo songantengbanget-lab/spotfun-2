@@ -1,167 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Spotfun</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
+<title>SpotFun</title><style>
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
 body{
   margin:0;
-  font-family: Arial, sans-serif;
-  background:#111;
-  color:#fff;
+  min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
+  background:#0f0f0f;
+  color:#fff;
+  overflow:hidden;
+}
+
+/* BLUR BACKGROUND */
+.bg{
+  position:fixed;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  filter:blur(40px) brightness(0.6);
+  transform:scale(1.2);
+  z-index:-1;
 }
 
 .player{
-  width:330px;
-  background:#1b1b1b;
-  border-radius:20px;
-  padding:15px;
+  width:360px;
+  background:rgba(18,18,18,.9);
+  border-radius:22px;
+  padding:16px;
+  backdrop-filter:blur(10px);
 }
 
 .cover-wrap{
   width:100%;
   aspect-ratio:1/1;
-  border-radius:15px;
+  border-radius:18px;
   overflow:hidden;
   background:#222;
 }
-
 .cover-wrap img{
   width:100%;
   height:100%;
-  object-fit:contain; /* ⬅ FIX CROP */
+  object-fit:contain; /* ANTI CROP */
 }
 
-h2{margin:10px 0 3px;font-size:20px}
-p{margin:0;color:#aaa}
+.info{margin-top:12px}
+.info h2{margin:0;font-size:20px}
+.info p{margin:4px 0 0;color:#aaa}
 
-.progress{
-  width:100%;
-}
+.progress-wrap{margin:14px 0}
+input[type=range]{width:100%}
+.time{display:flex;justify-content:space-between;font-size:12px;color:#aaa}
 
 .controls{
   display:flex;
   justify-content:space-between;
-  margin:15px 0;
+  align-items:center;
+  margin:12px 0;
 }
-
-button{
-  background:#1db954;
+.controls button{
+  background:none;
   border:none;
-  width:55px;
-  height:55px;
-  border-radius:50%;
-  font-size:18px;
   color:#fff;
+  font-size:20px;
 }
-
-.list{
-  margin-top:10px;
+.controls .play{
+  background:#1db954;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  font-size:24px;
 }
+.controls .active{color:#1db954}
 
+.playlist{margin-top:10px;max-height:160px;overflow:auto}
 .song{
-  padding:10px;
+  display:flex;
+  align-items:center;
+  padding:8px;
   border-radius:10px;
-  margin-bottom:5px;
   cursor:pointer;
 }
-
-.song.active{
-  background:#1db954;
+.song.active{background:rgba(29,185,84,.25)}
+.song img{
+  width:42px;height:42px;
+  object-fit:cover;
+  border-radius:6px;
+  margin-right:10px
 }
-</style>
-</head>
-
-<body>
-<div class="player">
-
-<div class="cover-wrap">
-  <img id="cover" src="aboutyou.jpg">
-</div>
-
-<h2 id="title">About You</h2>
-<p id="artist">The 1975</p>
-
-<input type="range" id="progress" class="progress" value="0">
-
-<div class="controls">
-  <button onclick="prev()">⏮</button>
-  <button onclick="playPause()">▶</button>
-  <button onclick="next()">⏭</button>
-</div>
-
-<div class="list">
-  <div class="song active" onclick="loadSong(0)">About You – The 1975</div>
-  <div class="song" onclick="loadSong(1)">Happiness – Rex Orange County</div>
-</div>
-
-<audio id="audio"></audio>
-
-</div>
+.song .t{font-size:14px}
+.song .a{font-size:12px;color:#aaa}
+</style></head>
+<body><div class="bg" id="bg"></div><div class="player">
+  <div class="cover-wrap">
+    <img id="cover" src="aboutyou.jpg">
+  </div>  <div class="info">
+    <h2 id="title">About You</h2>
+    <p id="artist">The 1975</p>
+  </div>  <div class="progress-wrap">
+    <input type="range" id="progress" value="0">
+    <div class="time">
+      <span id="current">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+  </div>  <div class="controls">
+    <button id="shuffleBtn">🔀</button>
+    <button onclick="prev()">⏮</button>
+    <button class="play" id="playBtn">▶</button>
+    <button onclick="next()">⏭</button>
+    <button id="repeatBtn">🔁</button>
+  </div>  <div class="playlist" id="playlist"></div>
+</div><audio id="audio"></audio>
 
 <script>
-const songs = [
-  {
-    title:"About You",
-    artist:"The 1975",
-    src:"aboutyou.mp3",
-    cover:"aboutyou.jpg"
-  },
-  {
-    title:"Happiness",
-    artist:"Rex Orange County",
-    src:"happiness.mp3",
-    cover:"cover2.jpg"
-  }
+const songs=[
+  {title:'About You',artist:'The 1975',src:'aboutyou.mp3',cover:'aboutyou.jpg'},
+  {title:'Happiness',artist:'Rex Orange County',src:'happiness.mp3',cover:'cover2.jpg'}
 ];
 
-let index = 0;
-const audio = document.getElementById("audio");
-const cover = document.getElementById("cover");
-const title = document.getElementById("title");
-const artist = document.getElementById("artist");
-const progress = document.getElementById("progress");
-const items = document.querySelectorAll(".song");
+let index=0;
+let shuffle=false;
+let repeat=false;
+
+const audio=document.getElementById('audio');
+const cover=document.getElementById('cover');
+const bg=document.getElementById('bg');
+const title=document.getElementById('title');
+const artist=document.getElementById('artist');
+const progress=document.getElementById('progress');
+const playBtn=document.getElementById('playBtn');
+const shuffleBtn=document.getElementById('shuffleBtn');
+const repeatBtn=document.getElementById('repeatBtn');
+const playlist=document.getElementById('playlist');
 
 function loadSong(i){
-  index = i;
-  audio.src = songs[i].src;
-  cover.src = songs[i].cover;
-  title.textContent = songs[i].title;
-  artist.textContent = songs[i].artist;
-  items.forEach(e=>e.classList.remove("active"));
-  items[i].classList.add("active");
-  audio.play();
+  index=i;
+  const s=songs[i];
+  audio.src=s.src;
+  cover.src=s.cover;
+  bg.style.backgroundImage=`url('${s.cover}')`;
+  title.textContent=s.title;
+  artist.textContent=s.artist;
+  document.querySelectorAll('.song').forEach((el,idx)=>{
+    el.classList.toggle('active',idx===i);
+  });
 }
 
-function playPause(){
-  audio.paused ? audio.play() : audio.pause();
+function togglePlay(){
+  if(audio.paused){audio.play();playBtn.textContent='⏸';}
+  else{audio.pause();playBtn.textContent='▶';}
 }
 
 function next(){
-  loadSong((index+1)%songs.length);
+  if(shuffle){index=Math.floor(Math.random()*songs.length);}
+  else{index=(index+1)%songs.length;}
+  loadSong(index);audio.play();playBtn.textContent='⏸';
 }
 
 function prev(){
-  loadSong((index-1+songs.length)%songs.length);
+  index=(index-1+songs.length)%songs.length;
+  loadSong(index);audio.play();playBtn.textContent='⏸';
 }
 
-audio.addEventListener("timeupdate",()=>{
-  progress.value = audio.currentTime / audio.duration * 100 || 0;
+shuffleBtn.onclick=()=>{
+  shuffle=!shuffle;
+  shuffleBtn.classList.toggle('active',shuffle);
+};
+
+repeatBtn.onclick=()=>{
+  repeat=!repeat;
+  repeatBtn.classList.toggle('active',repeat);
+};
+
+playBtn.onclick=togglePlay;
+
+audio.addEventListener('timeupdate',()=>{
+  progress.value=(audio.currentTime/audio.duration)*100||0;
+  current.textContent=format(audio.currentTime);
+  duration.textContent=format(audio.duration);
 });
 
-progress.addEventListener("input",()=>{
-  audio.currentTime = progress.value/100 * audio.duration;
+progress.oninput=()=>{
+  audio.currentTime=(progress.value/100)*audio.duration;
+};
+
+audio.addEventListener('ended',()=>{
+  if(repeat){audio.currentTime=0;audio.play();}
+  else{next();}
+});
+
+function format(t){if(!t)return'0:00';const m=Math.floor(t/60);const s=Math.floor(t%60).toString().padStart(2,'0');return`${m}:${s}`}
+
+songs.forEach((s,i)=>{
+  const div=document.createElement('div');
+  div.className='song';
+  div.innerHTML=`<img src="${s.cover}"><div><div class="t">${s.title}</div><div class="a">${s.artist}</div></div>`;
+  div.onclick=()=>{loadSong(i);audio.play();playBtn.textContent='⏸';};
+  playlist.appendChild(div);
 });
 
 loadSong(0);
-</script>
-
-</body>
+</script></body>
 </html>
