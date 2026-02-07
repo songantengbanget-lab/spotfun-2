@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,11 +72,39 @@ const shuffleBtn=document.getElementById('shuffle');
 const repeatBtn=document.getElementById('repeat');
 const volume=document.getElementById('volume');
 const playlist=document.getElementById('playlist');
-const seek=document.getElementById('seek');function load(n){ i=n; const s=songs[i]; audio.src=s.src; cover.src=s.cover; bg.style.backgroundImage=url(${s.cover}); title.textContent=s.title; artist.textContent=s.artist; document.querySelectorAll('.track').forEach((t,idx)=>t.classList.toggle('active',idx===i)); }
+const seek=document.getElementById('seek');
 
-playBtn.onclick=()=>{ if(audio.src==='') load(0); if(audio.paused){audio.play();playBtn.textContent='⏸';} else {audio.pause();playBtn.textContent='▶';} }; prevBtn.onclick=()=>{load((i-1+songs.length)%songs.length);audio.play();playBtn.textContent='⏸';}; nextBtn.onclick=()=>{shuffle?load(Math.floor(Math.random()*songs.length)):load((i+1)%songs.length);audio.play();playBtn.textContent='⏸';}; shuffleBtn.onclick=()=>{shuffle=!shuffle;shuffleBtn.classList.toggle('active',shuffle);}; repeatBtn.onclick=()=>{repeat=!repeat;repeatBtn.classList.toggle('active',repeat);}; audio.onended=()=>repeat?audio.play():next(); volume.value=0.8;audio.volume=0.8;volume.oninput=()=>audio.volume=volume.value; seek.max=0; audio.ontimeupdate=()=>seek.max=audio.duration||0; seek.value=audio.currentTime; seek.oninput=()=>audio.currentTime=seek.value;
+function load(n){
+  i=n;
+  const s=songs[i];
+  audio.src=s.src;
+  cover.src=s.cover;
+  bg.style.backgroundImage=`url(${s.cover})`;
+  title.textContent=s.title;
+  artist.textContent=s.artist;
+  document.querySelectorAll('.track').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+}
 
-songs.forEach((s,idx)=>{ const t=document.createElement('div'); t.className='track'; t.innerHTML=<img src='${s.cover}'><div><div>${s.title}</div><small>${s.artist}</small></div>; t.onclick=()=>{load(idx);audio.play();playBtn.textContent='⏸';}; playlist.appendChild(t); }); load(0); </script>
+playBtn.onclick=()=>{
+  if(audio.src==='') load(0);
+  if(audio.paused){audio.play();playBtn.textContent='⏸';} else {audio.pause();playBtn.textContent='▶';}
+};
+prevBtn.onclick=()=>{load((i-1+songs.length)%songs.length);audio.play();playBtn.textContent='⏸';};
+nextBtn.onclick=()=>{shuffle?load(Math.floor(Math.random()*songs.length)):load((i+1)%songs.length);audio.play();playBtn.textContent='⏸';};
+shuffleBtn.onclick=()=>{shuffle=!shuffle;shuffleBtn.classList.toggle('active',shuffle);};
+repeatBtn.onclick=()=>{repeat=!repeat;repeatBtn.classList.toggle('active',repeat);};
+audio.onended=()=>repeat?audio.play():next();
+volume.value=0.8;audio.volume=0.8;volume.oninput=()=>audio.volume=volume.value;
+seek.max=0; audio.ontimeupdate=()=>seek.max=audio.duration||0; seek.value=audio.currentTime;
+seek.oninput=()=>audio.currentTime=seek.value;
 
+songs.forEach((s,idx)=>{
+  const t=document.createElement('div'); t.className='track';
+  t.innerHTML=`<img src='${s.cover}'><div><div>${s.title}</div><small>${s.artist}</small></div>`;
+  t.onclick=()=>{load(idx);audio.play();playBtn.textContent='⏸';};
+  playlist.appendChild(t);
+});
+load(0);
+</script>
 </body>
 </html>
