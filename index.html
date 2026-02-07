@@ -1,234 +1,167 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SpotFun</title>
-  <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body {
-      margin: 0;
-      background: #121212;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-    }
-    .player {
-      width: 100%;
-      max-width: 380px;
-      background: #1e1e1e;
-      border-radius: 20px;
-      padding: 16px;
-    }/* COVER */
-.cover {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 16px;
-  overflow: hidden;
-}
-.cover .blur {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: blur(20px);
-  transform: scale(1.2);
-  opacity: 0.8;
-}
-.cover .main {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+<meta charset="UTF-8">
+<title>Spotfun</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#111;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 
-.info { margin-top: 14px; }
-.title { font-size: 22px; font-weight: bold; }
-.artist { color: #aaa; margin-top: 4px; }
-
-.progress {
-  margin: 16px 0;
-}
-input[type=range] {
-  width: 100%;
-}
-.time {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: #aaa;
+.player{
+  width:330px;
+  background:#1b1b1b;
+  border-radius:20px;
+  padding:15px;
 }
 
-.controls {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  margin: 16px 0;
-}
-.btn {
-  background: #2a2a2a;
-  border: none;
-  color: #fff;
-  border-radius: 50%;
-  width: 52px;
-  height: 52px;
-  font-size: 18px;
-}
-.btn.play {
-  background: #1db954;
-  width: 64px;
-  height: 64px;
-  font-size: 22px;
+.cover-wrap{
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:15px;
+  overflow:hidden;
+  background:#222;
 }
 
-.playlist {
-  margin-top: 16px;
+.cover-wrap img{
+  width:100%;
+  height:100%;
+  object-fit:contain; /* ⬅ FIX CROP */
 }
-.song {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.song.active {
-  background: #1db95433;
-}
-.song img {
-  width: 44px;
-  height: 44px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-right: 10px;
-}
-.song .s-title { font-size: 14px; }
-.song .s-artist { font-size: 12px; color: #aaa; }
 
-  </style>
+h2{margin:10px 0 3px;font-size:20px}
+p{margin:0;color:#aaa}
+
+.progress{
+  width:100%;
+}
+
+.controls{
+  display:flex;
+  justify-content:space-between;
+  margin:15px 0;
+}
+
+button{
+  background:#1db954;
+  border:none;
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  font-size:18px;
+  color:#fff;
+}
+
+.list{
+  margin-top:10px;
+}
+
+.song{
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:5px;
+  cursor:pointer;
+}
+
+.song.active{
+  background:#1db954;
+}
+</style>
 </head>
-<body><div class="player">
-  <div class="cover">
-    <img class="blur" id="coverBlur" src="cover1.jpg">
-    <img class="main" id="coverMain" src="cover1.jpg">
-  </div>  <div class="info">
-    <div class="title" id="title">About You</div>
-    <div class="artist" id="artist">The 1975</div>
-  </div>  <div class="progress">
-    <input type="range" id="progress" value="0">
-    <div class="time">
-      <span id="current">0:00</span>
-      <span id="duration">0:00</span>
-    </div>
-  </div>  <div class="controls">
-    <button class="btn" onclick="toggleShuffle()">🔀</button>
-    <button class="btn" onclick="prevSong()">⏮</button>
-    <button class="btn play" onclick="togglePlay()" id="playBtn">▶</button>
-    <button class="btn" onclick="nextSong()">⏭</button>
-  </div>  <div class="playlist" id="playlist"></div>
-</div><audio id="audio"></audio>
+
+<body>
+<div class="player">
+
+<div class="cover-wrap">
+  <img id="cover" src="aboutyou.jpg">
+</div>
+
+<h2 id="title">About You</h2>
+<p id="artist">The 1975</p>
+
+<input type="range" id="progress" class="progress" value="0">
+
+<div class="controls">
+  <button onclick="prev()">⏮</button>
+  <button onclick="playPause()">▶</button>
+  <button onclick="next()">⏭</button>
+</div>
+
+<div class="list">
+  <div class="song active" onclick="loadSong(0)">About You – The 1975</div>
+  <div class="song" onclick="loadSong(1)">Happiness – Rex Orange County</div>
+</div>
+
+<audio id="audio"></audio>
+
+</div>
 
 <script>
 const songs = [
-  { title: 'About You', artist: 'The 1975', src: 'aboutyou.mp3', cover: 'cover1.jpg' },
-  { title: 'Happiness', artist: 'Rex Orange County', src: 'happiness.mp3', cover: 'cover2.jpg' }
+  {
+    title:"About You",
+    artist:"The 1975",
+    src:"aboutyou.mp3",
+    cover:"aboutyou.jpg"
+  },
+  {
+    title:"Happiness",
+    artist:"Rex Orange County",
+    src:"happiness.mp3",
+    cover:"cover2.jpg"
+  }
 ];
 
-let current = 0;
-let isPlaying = false;
-let shuffle = false;
+let index = 0;
+const audio = document.getElementById("audio");
+const cover = document.getElementById("cover");
+const title = document.getElementById("title");
+const artist = document.getElementById("artist");
+const progress = document.getElementById("progress");
+const items = document.querySelectorAll(".song");
 
-const audio = document.getElementById('audio');
-const title = document.getElementById('title');
-const artist = document.getElementById('artist');
-const coverMain = document.getElementById('coverMain');
-const coverBlur = document.getElementById('coverBlur');
-const progress = document.getElementById('progress');
-const playBtn = document.getElementById('playBtn');
-const playlist = document.getElementById('playlist');
-
-function loadSong(i) {
-  const s = songs[i];
-  audio.src = s.src;
-  title.textContent = s.title;
-  artist.textContent = s.artist;
-  coverMain.src = s.cover;
-  coverBlur.src = s.cover;
-  document.querySelectorAll('.song').forEach((el, idx) => {
-    el.classList.toggle('active', idx === i);
-  });
-}
-
-function togglePlay() {
-  if (!isPlaying) {
-    audio.play();
-    playBtn.textContent = '⏸';
-  } else {
-    audio.pause();
-    playBtn.textContent = '▶';
-  }
-  isPlaying = !isPlaying;
-}
-
-function nextSong() {
-  current = shuffle ? Math.floor(Math.random() * songs.length) : (current + 1) % songs.length;
-  loadSong(current);
+function loadSong(i){
+  index = i;
+  audio.src = songs[i].src;
+  cover.src = songs[i].cover;
+  title.textContent = songs[i].title;
+  artist.textContent = songs[i].artist;
+  items.forEach(e=>e.classList.remove("active"));
+  items[i].classList.add("active");
   audio.play();
-  playBtn.textContent = '⏸';
-  isPlaying = true;
 }
 
-function prevSong() {
-  current = (current - 1 + songs.length) % songs.length;
-  loadSong(current);
-  audio.play();
-  playBtn.textContent = '⏸';
-  isPlaying = true;
+function playPause(){
+  audio.paused ? audio.play() : audio.pause();
 }
 
-function toggleShuffle() {
-  shuffle = !shuffle;
-  alert('Shuffle ' + (shuffle ? 'ON' : 'OFF'));
+function next(){
+  loadSong((index+1)%songs.length);
 }
 
-audio.addEventListener('timeupdate', () => {
-  progress.value = (audio.currentTime / audio.duration) * 100 || 0;
-  document.getElementById('current').textContent = format(audio.currentTime);
-  document.getElementById('duration').textContent = format(audio.duration);
+function prev(){
+  loadSong((index-1+songs.length)%songs.length);
+}
+
+audio.addEventListener("timeupdate",()=>{
+  progress.value = audio.currentTime / audio.duration * 100 || 0;
 });
 
-progress.addEventListener('input', () => {
-  audio.currentTime = (progress.value / 100) * audio.duration;
+progress.addEventListener("input",()=>{
+  audio.currentTime = progress.value/100 * audio.duration;
 });
 
-audio.addEventListener('ended', nextSong);
+loadSong(0);
+</script>
 
-function format(t) {
-  if (!t) return '0:00';
-  const m = Math.floor(t / 60);
-  const s = Math.floor(t % 60).toString().padStart(2, '0');
-  return `${m}:${s}`;
-}
-
-songs.forEach((s, i) => {
-  const div = document.createElement('div');
-  div.className = 'song';
-  div.innerHTML = `
-    <img src="${s.cover}">
-    <div>
-      <div class="s-title">${s.title}</div>
-      <div class="s-artist">${s.artist}</div>
-    </div>`;
-  div.onclick = () => {
-    current = i;
-    loadSong(i);
-    audio.play();
-    playBtn.textContent = '⏸';
-    isPlaying = true;
-  };
-  playlist.appendChild(div);
-});
-
-loadSong(current);
-</script></body>
+</body>
 </html>
