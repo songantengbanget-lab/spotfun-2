@@ -1,229 +1,234 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Spotify-style Offline Player</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpotFun</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body {
+      margin: 0;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .player {
+      width: 100%;
+      max-width: 380px;
+      background: #1e1e1e;
+      border-radius: 20px;
+      padding: 16px;
+    }/* COVER */
+.cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.cover .blur {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(20px);
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+.cover .main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
-<style>
-*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-body{
-  margin:0;
-  background:#000;
-  color:#fff;
-  overflow:hidden;
+.info { margin-top: 14px; }
+.title { font-size: 22px; font-weight: bold; }
+.artist { color: #aaa; margin-top: 4px; }
+
+.progress {
+  margin: 16px 0;
 }
-.bg-blur{
-  position:fixed;
-  inset:0;
-  background-size:cover;
-  background-position:center;
-  filter:blur(45px);
-  transform:scale(1.3);
-  z-index:-1;
+input[type=range] {
+  width: 100%;
 }
-.player{
-  max-width:420px;
-  margin:40px auto;
-  background:#121212cc;
-  border-radius:20px;
-  padding:20px;
+.time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #aaa;
 }
-.cover{
-  width:100%;
-  aspect-ratio:1/1;
-  border-radius:14px;
-  object-fit:cover;
+
+.controls {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 16px 0;
 }
-h2{margin:14px 0 4px}
-p{margin:0;color:#bbb}
-.progress{
-  width:100%;
-  height:6px;
-  background:#333;
-  border-radius:4px;
-  margin:14px 0;
-  cursor:pointer;
+.btn {
+  background: #2a2a2a;
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  font-size: 18px;
 }
-.progress-bar{
-  height:100%;
-  width:0%;
-  background:#1db954;
-  border-radius:4px;
+.btn.play {
+  background: #1db954;
+  width: 64px;
+  height: 64px;
+  font-size: 22px;
 }
-.time{
-  display:flex;
-  justify-content:space-between;
-  font-size:12px;
-  color:#aaa;
+
+.playlist {
+  margin-top: 16px;
 }
-.controls{
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  margin:18px 0;
+.song {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
 }
-button{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  border:none;
-  font-size:20px;
-  background:#1db954;
-  color:#000;
+.song.active {
+  background: #1db95433;
 }
-button.small{
-  width:44px;
-  height:44px;
-  background:#333;
-  color:#fff;
+.song img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 10px;
 }
-.playlist{
-  margin-top:14px;
-}
-.track{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:8px;
-  border-radius:10px;
-  cursor:pointer;
-}
-.track img{
-  width:48px;
-  height:48px;
-  border-radius:8px;
-  object-fit:cover;
-}
-.track.active{background:#1db95433}
-</style>
+.song .s-title { font-size: 14px; }
+.song .s-artist { font-size: 12px; color: #aaa; }
+
+  </style>
 </head>
-
-<body>
-
-<div class="bg-blur"></div>
-
-<div class="player">
-  <img class="cover" />
-  <h2 id="title"></h2>
-  <p id="artist"></p>
-
-  <div class="progress" id="progress">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
-
-  <div class="time">
-    <span id="current">0:00</span>
-    <span id="duration">0:00</span>
-  </div>
-
-  <div class="controls">
-    <button class="small" id="shuffle">🔀</button>
-    <button class="small" id="prev">⏮</button>
-    <button id="play">▶</button>
-    <button class="small" id="next">⏭</button>
-  </div>
-
-  <div class="playlist" id="playlist"></div>
-</div>
-
-<audio id="audio"></audio>
+<body><div class="player">
+  <div class="cover">
+    <img class="blur" id="coverBlur" src="cover1.jpg">
+    <img class="main" id="coverMain" src="cover1.jpg">
+  </div>  <div class="info">
+    <div class="title" id="title">About You</div>
+    <div class="artist" id="artist">The 1975</div>
+  </div>  <div class="progress">
+    <input type="range" id="progress" value="0">
+    <div class="time">
+      <span id="current">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+  </div>  <div class="controls">
+    <button class="btn" onclick="toggleShuffle()">🔀</button>
+    <button class="btn" onclick="prevSong()">⏮</button>
+    <button class="btn play" onclick="togglePlay()" id="playBtn">▶</button>
+    <button class="btn" onclick="nextSong()">⏭</button>
+  </div>  <div class="playlist" id="playlist"></div>
+</div><audio id="audio"></audio>
 
 <script>
-const tracks = [
-  {
-    title:"About You",
-    artist:"The 1975",
-    src:"aboutyou.mp3",
-    cover:"cover1.jpg"
-  },
-  {
-    title:"Happiness",
-    artist:"Rex Orange County",
-    src:"happiness.mp3",
-    cover:"cover2.jpg"
-  }
+const songs = [
+  { title: 'About You', artist: 'The 1975', src: 'aboutyou.mp3', cover: 'cover1.jpg' },
+  { title: 'Happiness', artist: 'Rex Orange County', src: 'happiness.mp3', cover: 'cover2.jpg' }
 ];
 
-let index = 0;
+let current = 0;
 let isPlaying = false;
 let shuffle = false;
 
-const audio = document.getElementById("audio");
-const cover = document.querySelector(".cover");
-const bg = document.querySelector(".bg-blur");
-const title = document.getElementById("title");
-const artist = document.getElementById("artist");
-const playBtn = document.getElementById("play");
-const progressBar = document.getElementById("progressBar");
-const current = document.getElementById("current");
-const duration = document.getElementById("duration");
-const playlist = document.getElementById("playlist");
+const audio = document.getElementById('audio');
+const title = document.getElementById('title');
+const artist = document.getElementById('artist');
+const coverMain = document.getElementById('coverMain');
+const coverBlur = document.getElementById('coverBlur');
+const progress = document.getElementById('progress');
+const playBtn = document.getElementById('playBtn');
+const playlist = document.getElementById('playlist');
 
-function loadTrack(i){
-  const t = tracks[i];
-  audio.src = t.src;
-  cover.src = t.cover;
-  bg.style.backgroundImage = `url(${t.cover})`; // 🔑 BLUR IKUT LAGU
-  title.textContent = t.title;
-  artist.textContent = t.artist;
-  document.querySelectorAll(".track").forEach((el,idx)=>{
-    el.classList.toggle("active", idx===i);
+function loadSong(i) {
+  const s = songs[i];
+  audio.src = s.src;
+  title.textContent = s.title;
+  artist.textContent = s.artist;
+  coverMain.src = s.cover;
+  coverBlur.src = s.cover;
+  document.querySelectorAll('.song').forEach((el, idx) => {
+    el.classList.toggle('active', idx === i);
   });
 }
 
-function play(){
+function togglePlay() {
+  if (!isPlaying) {
+    audio.play();
+    playBtn.textContent = '⏸';
+  } else {
+    audio.pause();
+    playBtn.textContent = '▶';
+  }
+  isPlaying = !isPlaying;
+}
+
+function nextSong() {
+  current = shuffle ? Math.floor(Math.random() * songs.length) : (current + 1) % songs.length;
+  loadSong(current);
   audio.play();
+  playBtn.textContent = '⏸';
   isPlaying = true;
-  playBtn.textContent="⏸";
-}
-function pause(){
-  audio.pause();
-  isPlaying = false;
-  playBtn.textContent="▶";
 }
 
-playBtn.onclick = ()=> isPlaying ? pause() : play();
+function prevSong() {
+  current = (current - 1 + songs.length) % songs.length;
+  loadSong(current);
+  audio.play();
+  playBtn.textContent = '⏸';
+  isPlaying = true;
+}
 
-document.getElementById("next").onclick = ()=>{
-  index = shuffle ? Math.floor(Math.random()*tracks.length) : (index+1)%tracks.length;
-  loadTrack(index); play();
-};
-document.getElementById("prev").onclick = ()=>{
-  index = (index-1+tracks.length)%tracks.length;
-  loadTrack(index); play();
-};
-document.getElementById("shuffle").onclick = ()=>{
+function toggleShuffle() {
   shuffle = !shuffle;
-  document.getElementById("shuffle").style.background = shuffle ? "#1db954" : "#333";
-};
+  alert('Shuffle ' + (shuffle ? 'ON' : 'OFF'));
+}
 
-audio.ontimeupdate = ()=>{
-  progressBar.style.width = (audio.currentTime/audio.duration)*100+"%";
-  current.textContent = format(audio.currentTime);
-  duration.textContent = format(audio.duration);
-};
-document.getElementById("progress").onclick = e=>{
-  const p = e.offsetX/e.target.offsetWidth;
-  audio.currentTime = p*audio.duration;
-};
+audio.addEventListener('timeupdate', () => {
+  progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+  document.getElementById('current').textContent = format(audio.currentTime);
+  document.getElementById('duration').textContent = format(audio.duration);
+});
 
-function format(t){
-  if(!t) return "0:00";
-  const m = Math.floor(t/60);
-  const s = Math.floor(t%60).toString().padStart(2,"0");
+progress.addEventListener('input', () => {
+  audio.currentTime = (progress.value / 100) * audio.duration;
+});
+
+audio.addEventListener('ended', nextSong);
+
+function format(t) {
+  if (!t) return '0:00';
+  const m = Math.floor(t / 60);
+  const s = Math.floor(t % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 }
 
-tracks.forEach((t,i)=>{
-  const div=document.createElement("div");
-  div.className="track";
-  div.innerHTML=`<img src="${t.cover}"><div><b>${t.title}</b><br><small>${t.artist}</small></div>`;
-  div.onclick=()=>{index=i;loadTrack(i);play()};
+songs.forEach((s, i) => {
+  const div = document.createElement('div');
+  div.className = 'song';
+  div.innerHTML = `
+    <img src="${s.cover}">
+    <div>
+      <div class="s-title">${s.title}</div>
+      <div class="s-artist">${s.artist}</div>
+    </div>`;
+  div.onclick = () => {
+    current = i;
+    loadSong(i);
+    audio.play();
+    playBtn.textContent = '⏸';
+    isPlaying = true;
+  };
   playlist.appendChild(div);
 });
 
-loadTrack(index);
-</script>
-</body>
+loadSong(current);
+</script></body>
 </html>
