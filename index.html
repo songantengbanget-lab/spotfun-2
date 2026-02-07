@@ -2,75 +2,78 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Spotify Style Player</title>
+<title>Spotify Clone Final+</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --green:#1db954;
-  --bg:#121212;
+  --accent:#1db954;
   --card:#181818;
 }
 *{box-sizing:border-box}
 body{
-  margin:0; background:#000; color:#fff;
+  margin:0;background:#000;color:#fff;
   font-family:'Inter',sans-serif;
-  display:flex; justify-content:center; align-items:center;
-  min-height:100vh; overflow:hidden;
+  display:flex;justify-content:center;align-items:center;
+  min-height:100vh;overflow:hidden;
 }
 .bg{
-  position:fixed; inset:0;
-  background-size:cover; background-position:center;
-  filter:blur(90px) brightness(.6);
-  transform:scale(1.2);
+  position:fixed;inset:0;
+  background-size:cover;background-position:center;
+  filter:blur(100px) brightness(.55);
+  transform:scale(1.3);
   z-index:-1;
 }
 .player{
-  width:380px; background:var(--card);
-  border-radius:28px; padding:20px;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  width:390px;background:linear-gradient(180deg,#222,var(--card));
+  border-radius:28px;padding:20px;
+  box-shadow:0 25px 70px rgba(0,0,0,.7);
 }
 .cover{
-  width:100%; aspect-ratio:1/1;
-  border-radius:22px;
-  object-fit:contain;
-  background:#000;
+  width:100%;aspect-ratio:1/1;border-radius:22px;
+  object-fit:contain;background:#000;
 }
-.info{margin-top:16px}
+.info{margin-top:14px}
 .title{font-size:20px;font-weight:700}
 .artist{font-size:14px;color:#aaa}
-.progress{margin:18px 0}
+.progress{margin:16px 0}
 .progress input{
-  width:100%; appearance:none; height:4px;
-  background:#444; border-radius:4px;
+  width:100%;appearance:none;height:4px;
+  background:#444;border-radius:4px;
 }
 .progress input::-webkit-slider-thumb{
-  appearance:none; width:12px; height:12px;
-  background:#fff; border-radius:50%;
+  appearance:none;width:12px;height:12px;
+  background:#fff;border-radius:50%;
 }
 .controls{
-  display:flex; justify-content:space-between;
-  align-items:center; margin-top:10px;
+  display:flex;justify-content:space-between;align-items:center;
 }
 .controls button{
   background:none;border:none;color:#fff;
   font-size:18px;cursor:pointer;
 }
 .play{
-  width:64px;height:64px;border-radius:50%;
+  width:66px;height:66px;border-radius:50%;
   background:#fff;color:#000;
   display:flex;align-items:center;justify-content:center;
-  font-size:26px;
+  font-size:28px;
 }
-.active{color:var(--green)}
-.volume{margin-top:14px}
+.active{color:var(--accent)}
+.volume{margin:14px 0}
 .volume input{width:100%}
-.playlist{margin-top:20px}
+.playlist{margin-top:10px;max-height:160px;overflow:auto}
 .track{
   display:flex;gap:10px;align-items:center;
   padding:8px;border-radius:10px;cursor:pointer;
 }
 .track.active{background:#282828}
 .track img{width:44px;height:44px;border-radius:6px;object-fit:cover}
+.lyrics{
+  margin-top:12px;padding:10px;
+  background:#101010;border-radius:12px;
+  font-size:13px;line-height:1.4;
+  max-height:120px;overflow:auto;
+}
 </style>
 </head>
 <body>
@@ -81,9 +84,7 @@ body{
     <div class="title" id="title"></div>
     <div class="artist" id="artist"></div>
   </div>
-  <div class="progress">
-    <input type="range" id="seek" value="0" />
-  </div>
+  <div class="progress"><input type="range" id="seek" value="0" /></div>
   <div class="controls">
     <button id="shuffle">🔀</button>
     <button id="prev">⏮</button>
@@ -91,16 +92,15 @@ body{
     <button id="next">⏭</button>
     <button id="repeat">🔁</button>
   </div>
-  <div class="volume">
-    <input type="range" min="0" max="1" step="0.01" id="volume" />
-  </div>
+  <div class="volume"><input type="range" min="0" max="1" step="0.01" id="volume" /></div>
   <div class="playlist" id="playlist"></div>
+  <div class="lyrics" id="lyrics">🎶 Lyrics akan tampil di sini</div>
 </div>
 <audio id="audio"></audio>
 <script>
 const songs=[
- {title:'About You',artist:'The 1975',src:'aboutyou.mp3',cover:'aboutyou.jpg'},
- {title:'Happiness',artist:'Rex Orange County',src:'happiness.mp3',cover:'cover2.jpg'}
+ {title:'About You',artist:'The 1975',src:'aboutyou.mp3',cover:'aboutyou.jpg',lyrics:'I know a place...'},
+ {title:'Happiness',artist:'Rex Orange County',src:'happiness.mp3',cover:'cover2.jpg',lyrics:'I was scrolling through my phone...'}
 ];
 let i=0,shuffle=false,repeat=false;
 const audio=document.getElementById('audio');
@@ -114,55 +114,15 @@ const volume=document.getElementById('volume');
 const playlist=document.getElementById('playlist');
 const shuffleBtn=document.getElementById('shuffle');
 const repeatBtn=document.getElementById('repeat');
-function load(n){
-  i=n;
-  const s=songs[i];
-  audio.src=s.src;
-  cover.src=s.cover;
-  bg.style.backgroundImage=`url(${s.cover})`;
-  title.textContent=s.title;
-  artist.textContent=s.artist;
-  document.querySelectorAll('.track').forEach((t,idx)=>{
-    t.classList.toggle('active',idx===i);
-  });
-}
-play.onclick=()=>{
-  if(audio.paused){audio.play();play.textContent='⏸';}
-  else{audio.pause();play.textContent='▶';}
-};
-audio.ontimeupdate=()=>{
-  seek.max=audio.duration||0;
-  seek.value=audio.currentTime||0;
-};
-seek.oninput=()=>audio.currentTime=seek.value;
-volume.value=0.8; audio.volume=0.8;
-volume.oninput=()=>audio.volume=volume.value;
-document.getElementById('next').onclick=()=>next();
-document.getElementById('prev').onclick=()=>prev();
-function next(){
-  if(shuffle) load(Math.floor(Math.random()*songs.length));
-  else load((i+1)%songs.length);
-  audio.play(); play.textContent='⏸';
-}
-function prev(){
-  load((i-1+songs.length)%songs.length);
-  audio.play(); play.textContent='⏸';
-}
-shuffleBtn.onclick=()=>{
-  shuffle=!shuffle; shuffleBtn.classList.toggle('active',shuffle);
-};
-repeatBtn.onclick=()=>{
-  repeat=!repeat; repeatBtn.classList.toggle('active',repeat);
-};
-audio.onended=()=>{ repeat ? audio.play() : next(); };
-songs.forEach((s,idx)=>{
-  const d=document.createElement('div');
-  d.className='track';
-  d.innerHTML=`<img src="${s.cover}"><div><div>${s.title}</div><small>${s.artist}</small></div>`;
-  d.onclick=()=>{load(idx);audio.play();play.textContent='⏸';};
-  playlist.appendChild(d);
-});
-load(0);
-</script>
+const lyricsBox=document.getElementById('lyrics');function extractColor(img){ const c=document.createElement('canvas'); const ctx=c.getContext('2d'); c.width=c.height=40; ctx.drawImage(img,0,0,40,40); const d=ctx.getImageData(0,0,40,40).data; let r=0,g=0,b=0; for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];} r=Math.floor(r/(d.length/4)); g=Math.floor(g/(d.length/4)); b=Math.floor(b/(d.length/4)); document.documentElement.style.setProperty('--accent',rgb(${r},${g},${b})); }
+
+function load(n){ i=n; const s=songs[i]; audio.src=s.src; cover.src=s.cover; bg.style.backgroundImage=url(${s.cover}); title.textContent=s.title; artist.textContent=s.artist; lyricsBox.textContent=s.lyrics||'🎶 Lyrics belum tersedia'; cover.onload=()=>extractColor(cover); document.querySelectorAll('.track').forEach((t,idx)=>t.classList.toggle('active',idx===i)); }
+
+play.onclick=()=>{ if(audio.paused){audio.play();play.textContent='⏸';} else{audio.pause();play.textContent='▶';} }; audio.ontimeupdate=()=>{seek.max=audio.duration||0;seek.value=audio.currentTime||0;}; seek.oninput=()=>audio.currentTime=seek.value; volume.value=0.8;audio.volume=0.8;volume.oninput=()=>audio.volume=volume.value;
+
+document.getElementById('next').onclick=()=>next(); document.getElementById('prev').onclick=()=>prev(); function next(){shuffle?load(Math.floor(Math.random()*songs.length)):load((i+1)%songs.length);audio.play();play.textContent='⏸';} function prev(){load((i-1+songs.length)%songs.length);audio.play();play.textContent='⏸';} shuffleBtn.onclick=()=>{shuffle=!shuffle;shuffleBtn.classList.toggle('active',shuffle)}; repeatBtn.onclick=()=>{repeat=!repeat;repeatBtn.classList.toggle('active',repeat)}; audio.onended=()=>{repeat?audio.play():next()};
+
+songs.forEach((s,idx)=>{ const d=document.createElement('div');d.className='track'; d.innerHTML=<img src="${s.cover}"><div><div>${s.title}</div><small>${s.artist}</small></div>; d.onclick=()=>{load(idx);audio.play();play.textContent='⏸'}; playlist.appendChild(d); }); load(0); </script>
+
 </body>
 </html>
